@@ -8,16 +8,6 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
-  <app-root>
-    <ul id="messages">
-      <li *ngFor="let message of messages">
-        <span [innerHTML]="isSystemMessage(message)"></span>
-      </li>
-    </ul>
-    <form action="">
-      <input [(ngModel)]="chatBox" [ngModelOptions]="{standalone: true}" autocomplete="off" />
-      <button (click)="send()">Send</button>
-    </form>
-  </app-root>
+  <app-root></app-root>
 </body>
 </html>
