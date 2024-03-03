@@ -1,16 +1,21 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { SocketService } from "./socket.service";
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import {SocketService} from "./socket.service";
+import {NgForOf} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 
 @Component({
-  selector: "app-root",
+  selector: 'app-root',
   standalone: true,
-  templateUrl: "./app.component.html",
-  styleUrl: "./app.component.scss",
+  imports: [RouterOutlet, NgForOf, FormsModule],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy {
+
+  title = 'RealTimeChat';
   public messages: Array<any>;
   public chatBox: string;
-  public title = "Real time chat";
 
   public constructor(private socket: SocketService) {
     this.messages = [];
@@ -18,7 +23,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit() {
-    this.socket.getEventListener().subscribe((event: any) => {
+    this.socket.getEventListener().subscribe(event => {
       if (event.type == "message") {
         let data = event.data.content;
         if (event.data.sender) {
@@ -30,9 +35,9 @@ export class AppComponent implements OnInit, OnDestroy {
         this.messages.push("/The socket connection has been closed");
       }
       if (event.type == "open") {
-        this.messages.push("/The socket connection has been established");
+        this.messages.push("/The socket connection has been established")
       }
-    });
+    })
   }
 
   public ngOnDestroy() {
@@ -47,10 +52,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public isSystemMessage(message: string) {
-    return message.startsWith(
-        "/",
-      )
-      ? "<strong>" + message.substring(1) + "</strong>"
-      : message;
+    return message.startsWith("/") ? "<strong>" + message.substring(1) + "</strong>" : message;
   }
 }
