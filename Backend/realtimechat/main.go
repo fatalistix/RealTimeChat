@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/websocket"
 	"github.com/satori/go.uuid"
-	"golang.org/x/net/websocket"
 )
 
 type ClientManager struct {
@@ -73,14 +73,14 @@ func (manager *ClientManager) send(message []byte, ignore *Client) {
 func (c *Client) read() {
 	defer func() {
 		manager.unregister <- c
-		c.socket.Close()
+		_ = c.socket.Close()
 	}()
 
 	for {
 		_, message, err := c.socket.ReadMessage()
 		if err != nil {
 			manager.unregister <- c
-			c.socket.Close()
+			_ = c.socket.Close()
 			break
 		}
 		jsonMessage, _ := json.Marshal(&Message{Sender: c.id, Content: string(message)})
@@ -90,25 +90,25 @@ func (c *Client) read() {
 
 func (c *Client) write() {
 	defer func() {
-		c.socket.Close()
+		_ = c.socket.Close()
 	}()
 
 	for {
 		select {
 		case message, ok := <-c.send:
 			if !ok {
-				c.socket.WriteMessage(websocket.CloseMessage, []byte{})
+				_ = c.socket.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			c.socket.WriteMessage(websocket.TextMessage, message)
+			_ = c.socket.WriteMessage(websocket.TextMessage, message)
 		}
 	}
 }
 
 func wsPage(res http.ResponseWriter, req *http.Request) {
-	conn, error := (&websocket.Upgrader{CheckOrigin: func(r *htttp.Request) bool { return true }}).Upgrade(res, req, nil)
-	if error != nil {
+	conn, err := (&websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}).Upgrade(res, req, nil)
+	if err != nil {
 		http.NotFound(res, req)
 		return
 	}
@@ -124,5 +124,5 @@ func main() {
 	fmt.Println("Starting application...")
 	go manager.start()
 	http.HandleFunc("/ws", wsPage)
-	http.ListenAndServe(":12345", nil)
+	_ = http.ListenAndServe(":12345", nil)
 }
