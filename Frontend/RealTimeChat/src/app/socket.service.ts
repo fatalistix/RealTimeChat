@@ -1,21 +1,24 @@
-import { EventEmitter, Injectable } from "@angular/core";
+import { Injectable, EventEmitter } from '@angular/core';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class SocketService {
+
   private socket: WebSocket;
   private listener: EventEmitter<any> = new EventEmitter();
 
-  public constructor() {
-    this.socket = new WebSocket("ws://localhost:12345/ws");
-    this.socket.onopen = (event) => {
+  constructor() {
+    this.socket = new WebSocket("ws://localhost:12345/ws")
+    this.socket.onopen = event => {
       this.listener.emit({ "type": "open", "data": event });
-    };
-    this.socket.onclose = (event) => {
-      this.listener.emit({ "type": "close", "data": event });
-    };
-    this.socket.onmessage = (event) => {
-      this.listener.emit({ "type": "message", "data": JSON.parse(event.data) });
-    };
+    }
+    this.socket.onclose = event => {
+      this.listener.emit({ "type": "close", "data": event })
+    }
+    this.socket.onmessage = event => {
+      this.listener.emit({ "type": "message", "data": JSON.parse(event.data) })
+    }
   }
 
   public send(data: string) {
